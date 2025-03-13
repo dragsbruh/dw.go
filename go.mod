@@ -1,3 +1,3 @@
-module github.com/bensch777/discord-webhook-golang
+module github.com/dragsbruh/dw.go
 
 go 1.18

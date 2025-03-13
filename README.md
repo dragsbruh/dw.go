@@ -1,83 +1,91 @@
+# dw.go
 
-# discord-webhook-golang
- Allows for easy webhook sending through discord's webhook API.
+> NOTE: This is a fork of [bensch777/discord-webhook-golang](https://github.com/bensch777/discord-webhook-golang) with some changes that i felt would make it better.
 
-# Installation
+## Installation
 
 ```go
-go get github.com/bensch777/discord-webhook-golang
+go get github.com/dragsbruh/dw.go
 ```
 
-# Code Example
+## Code Example
+
 ```go
 package main
 
 import (
-    "encoding/json"
-    "log"
-    "time"
-    "github.com/bensch777/discord-webhook-golang"
+	"fmt"
+	"time"
+
+	dw "github.com/dragsbruh/dw.go"
 )
 
 func main() {
+	webhookUrl := "https://discord.com/api/webhooks/....."
 
-    var webhookurl = "https://discord.com/api/webhooks/1069721907429122218/AXcbveVUfztv5Xh5y5uOp....."
+	timestamp := time.Now()
 
-    embed := discordwebhook.Embed{
-        Title:     "Example Webhook",
-        Color:     15277667,
-        Url:       "https://avatars.githubusercontent.com/u/6016509?s=48&v=4",
-        Timestamp: time.Now(),
-        Thumbnail: discordwebhook.Thumbnail{
-            Url: "https://avatars.githubusercontent.com/u/6016509?s=48&v=4",
-        },
-        Author: discordwebhook.Author{
-            Name:     "Author Name",
-            Icon_URL: "https://avatars.githubusercontent.com/u/6016509?s=48&v=4",
-        },
-        Fields: []discordwebhook.Field{
-            discordwebhook.Field{
-                Name:   "Field 1",
-                Value:  "Field Value 1",
-                Inline: true,
-            },
-            discordwebhook.Field{
-                Name:   "Field 2",
-                Value:  "Field Value 2",
-                Inline: true,
-            },
-            discordwebhook.Field{
-                Name:   "Field 3",
-                Value:  "Field Value 3",
-                Inline: false,
-            },
-        },
-        Footer: discordwebhook.Footer{
-            Text:     "Footer Text",
-            Icon_url: "https://avatars.githubusercontent.com/u/6016509?s=48&v=4",
-        },
-    }
+	embed := dw.Embed{
+		Title:     "Example Webhook",
+		Color:     0xffffff,
+		Url:       "https://avatars.githubusercontent.com/u/6016509?s=48&v=4",
+		Timestamp: &timestamp,
+		Thumbnail: &dw.Thumbnail{
+			Url: "https://avatars.githubusercontent.com/u/6016509?s=48&v=4",
+		},
+		Author: &dw.Author{
+			Name:    "Author Name",
+			IconUrl: "https://avatars.githubusercontent.com/u/6016509?s=48&v=4",
+		},
+		Fields: []dw.Field{
+			{
+				Name:   "Field 1",
+				Value:  "Field Value 1",
+				Inline: true,
+			},
+			{
+				Name:   "Field 2",
+				Value:  "Field Value 2",
+				Inline: true,
+			},
+			{
+				Name:   "Field 3",
+				Value:  "Field Value 3",
+				Inline: false,
+			},
+		},
+		Footer: &dw.Footer{
+			Text:    "Footer Text",
+			IconUrl: "https://avatars.githubusercontent.com/u/6016509?s=48&v=4",
+		},
+	}
 
-    SendEmbed(webhookurl, embed)
+	hook := dw.Hook{
+		Username:  "Captain Hook",
+		AvatarUrl: "https://avatars.githubusercontent.com/u/6016509?s=48&v=4",
+		Content:   "Message",
+		Embeds:    []dw.Embed{embed},
+	}
 
-}
+	err := dw.ExecuteWebhook(webhookUrl, &hook)
 
-
-func SendEmbed(link string, embeds discordwebhook.Embed) error {
-
-    hook := discordwebhook.Hook{
-        Username:   "Captain Hook",
-        Avatar_url: "https://avatars.githubusercontent.com/u/6016509?s=48&v=4",
-        Content:    "Message",
-        Embeds:     []discordwebhook.Embed{embeds},
-    }
-
-    payload, err := json.Marshal(hook)
-    if err != nil {
-        log.Fatal(err)
-    }
-    err = discordwebhook.ExecuteWebhook(link, payload)
-    return err
-
+	if _, ok := err.(*dw.RateLimitError); ok {
+		fmt.Println("rate limit")
+	} else if err != nil {
+		panic(err)
+	}
 }
 ```
+
+## What are the changes?
+
+1. Made many fields optional, such as timestamp, etc.
+2. Added a `RateLimitError` type that is returned when the rate limit is hit.
+3. Make the `ExecuteWebhook` function take a `Hook` instead.
+
+## Future plans?
+
+Not entirely sure but:
+
+- [ ] Message builder
+- [ ] Also get rate limit information
